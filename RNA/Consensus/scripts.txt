@@ -1,0 +1,1 @@
+RNAalifold -p -r --noLP --aln --color --sci --MEA EAA5cons.aln > EAA5cons.out

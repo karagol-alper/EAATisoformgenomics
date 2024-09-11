@@ -1,0 +1,1418 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: ViennaRNA-2.6.4
+%%CreationDate: Sat Jul  6 15:46:18 2024
+%%Title: RNA Dot Plot
+%%BoundingBox: 66 211 518 662
+%%DocumentFonts: Helvetica
+%%Pages: 1
+%%EndComments
+
+% Program options: --noLP 
+
+% This file contains the square roots of probabilities in the form
+% i  j  sqrt(p(i,j)) ubox
+
+/DPdict 100 dict def
+
+DPdict begin
+
+%%BeginProlog
+
+/logscale false def
+/lpmin 1e-05 log def
+/DataVisible  [ true true true true] def
+/DataTitles   [ false false false false ] def
+/min { 2 copy gt { exch } if pop } bind def
+/max { 2 copy lt { exch } if pop } bind def
+/box { %size x y box - draws box centered on x,y
+   2 index 0.5 mul sub            % x -= 0.5
+   exch 2 index 0.5 mul sub exch  % y -= 0.5
+   3 -1 roll dup rectfill
+} bind def
+/ubox {
+   logscale {
+      log dup add lpmin div 1 exch sub dup 0 lt { pop 0 } if
+   } if
+   3 1 roll
+   exch len exch sub 1 add box
+} bind def
+/lbox {
+   3 1 roll
+   len exch sub 1 add box
+} bind def
+/drawseq { % print sequence along all 4 sides
+[ [0.7 -0.3 0 ]
+  [0.7 0.7 len add 0]
+  [-0.3 len sub -0.4 -90]
+  [-0.3 len sub 0.7 len add -90]
+] {
+   gsave
+    aload pop rotate translate
+    0 1 len 1 sub {
+     dup 0 moveto
+     sequence exch 1 getinterval
+     show
+    } for
+   grestore
+  } forall
+} bind def
+/drawgrid{
+  gsave
+  0.5 dup translate
+  0.01 setlinewidth
+  len log 0.9 sub cvi 10 exch exp  % grid spacing
+  dup 1 gt {
+     dup dup 20 div dup 2 array astore exch 40 div setdash
+  } { [0.3 0.7] 0.1 setdash } ifelse
+  0 exch len {
+     dup dup
+     0 moveto
+     len lineto
+     dup
+     len exch sub 0 exch moveto
+     len exch len exch sub lineto
+     stroke
+  } for
+  [] 0 setdash
+  0.04 setlinewidth
+  % draw strand separators if required
+  currentdict /nicks known {
+    gsave
+    % draw lines in red color
+    0 1 1 sethsbcolor
+    % draw with line thickness of 0.2
+    0.2 setlinewidth
+    nicks
+    { 1 sub
+    dup dup -1 moveto len 1 add lineto
+    len exch sub dup
+    -1 exch moveto len 1 add exch lineto
+    stroke
+    } forall
+    grestore
+  } if
+  % draw diagonal
+  0 len moveto len 0 lineto stroke
+  grestore
+} bind def
+/drawTitle {
+  currentdict /DPtitle known {
+    % center title text
+    /Helvetica findfont 10 scalefont setfont
+    360 705 moveto DPtitle dup stringwidth pop 2 div neg 0 rmoveto show
+  } if
+} bind def
+/prepareCoords {
+  0 1 3 {
+    % check whether we want to display current data
+    dup DataVisible exch get
+    {
+      % check whether we've actually got some data
+      DataSource exch get dup currentdict exch known {
+        % data source s_j is present, so find length of array
+        currentdict exch get length 
+      } { pop 0 } ifelse
+    } if
+  } for
+  exch dup 5 -1 roll add 4 -1 roll dup 5 1 roll 4 -1 roll add max
+  len add 3 add 700 exch div dup scale
+  exch 1 add exch 1 add translate
+} bind def
+/utri{ % i j prob utri
+  gsave
+  0.5 dup translate
+  1 min 2 div
+  0.85 mul 0.15 add 0.95  0.33
+  3 1 roll % prepare hsb color
+  sethsbcolor
+  % now produce the coordinates for lines
+  exch 1 sub dup len exch sub dup 4 -1 roll dup 3 1 roll dup len exch sub
+  moveto lineto lineto closepath fill
+  grestore
+} bind def
+
+%%EndProlog
+
+/DPtitle {
+  (alidot.ps)
+} def
+
+/sequence { (\
+_______________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________\
+_______________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________\
+_______________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________\
+_______________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________\
+___________________________________________________________AUGAGCAGCCAUGGCAACAGCCUGUUCCUGCGGGAGAGCGGCCAGCGGCUGGGCCGGGUGGGCUGGCUGCAGCGGCUGCAGGAAAGCCUGCAGCAGAGAGCACUGCGCACGCGCCUGCGCCUGCAGACCAUGACCCGCGAGCACGUGCUGCGCUUCCUGCGCCGAAACGCCUUCAUUCUGCUGACGGUCAGCGCCG\
+UGGUCAUUGGGGUCAGCCUGGCCUUUGCCCUGCGCCCAUAUCAGCUCACCUACCGCCAGAUCAAGUACUUCUCUUUUCCUGGAGAGCUUCUGAUGAGGAUGCUGCAGAUGCUGGUGUUACCUCUCAUUGUCUCCAGCCUGGUCACAGGUAUGGCAUCCCUGGACAACAAGGCCACGGGGCGGAUGGGGAUGCGGGCAGCUGUGUACUACAUGGUGACCACCAUCAUCGCGGUCUUCAUCGGCAUCCUCAUGGUCA\
+CCAUCAUCCAUCCCGGGAAGGGCUCCAAGGAGGGGCUGCACCGGGAGGGCCGGAUCGAGACCAUCCCCACAGCUGAUGCCUUCAUGGACCUGAUCAGAAAUAUGUUUCCACCAAACCUUGUGGAGGCCUGCUUCAAACAGUUCAAGACGCAGUACAGCACGAGGGUGGUAACCAGGACCAUGGUGAGGACAGAGAACGGGUCUGAGCCGGGUGCCUCCAUGCCUCCUCCAUUCUCAGUGGAGAACGGAACCAGCU\
+UCCUGGAAAAUGUCACUCGGGCCUUGGGUACCCUGCAGGAGAUGCUGAGCUUUGAGGAGACUGUACCCGUGCCUGGCUCCGCCAAUGGCAUCAACGCCCUGGGCCUCGUGGUCUUCUCUGUGGCCUUUGGGCUGGUCAUUGGUGGCAUGAAACACAAGGGCAGAGUCCUCAGGGACUUCUUCGACAGCCUCAAUGAGGCUAUUAUGAGGCUGGUGGGCAUCAUUAUCUGGUAUGCACCUGUGGGCAUCCUGUUCC\
+UGAUUGCUGGGAAGAUUCUGGAGAUGGAAGACAUGGCCGUCCUGGGGGGUCAGCUGGGCAUGUACACCCUGACCGUCAUCGUGGGCCUGUUCCUCCAUGCCGGCAUUGUCCUUCCCCUCAUCUACUUCCUCGUCACUCACCGGAACCCCUUCCCCUUCAUUGGGGGCAUGCUACAAGCCCUCAUCACCGCUAUGGGCACGUCUUCCAGCUCGGCAACGCUGCCCAUCACCUUCCGCUGCCUGGAGGAGGGCCUGG\
+GUGUGGACCGCCGCAUCACCAGGUUCGUCCUGCCCGUGGGCGCCACGGUCAACAUGGAUGGCACUGCCCUCUACGAGGCCCUGGCUGCCAUCUUCAUUGCUCAAGUUAACAACUACGAGCUCAACCUGGGUCAGAUCACAACCAUCAGCAUCACGGCCACAGCAGCCAGUGUUGGGGCUGCUGGCAUCCCCCAGGCGGGUCUGGUCACCAUGGUCAUUGUGCUUACGUCGGUCGGCUUGCCCACGGAAGACAUCA\
+CGCUCAUCAUCGCCGUGGACUGGUUCCUUGACCGGCUUCGCACAAUGACCAACGUACUGGGGGACUCAAUUGGAGCGGCCGUCAUCGAGCACUUGUCUCAGCGGGAGCUGGAGCUUCAGGAAGCUGAGCUCACCCUCCCCAGCCUGGGGAAACCCUACAAGUCCCUCAUGGCACAGGAGAAGGGGGCAUCCCGGGGACGGGGAGGCAACGAGAGUGCUAUGUGAGGGGCCUCCAGCUCUGCCCCC_CAGAGAGGA\
+GGGAAGGGGGCUGGGGAGGGGAGUCCUGGUGACACAUCUGUUGCCCAACUGACCGUGGGCUGAACACACGUUCUGCUUGACUCAUUUAGGGGGGAGGGAAAAGUGAAAUAAAGGAGCAGGAAUGAAAGGUA___________\
+) } def
+/len { sequence length } bind def
+
+72 216 translate
+72 6 mul len 1 add div dup scale
+/Helvetica findfont 0.95 scalefont setfont
+
+drawseq
+/hsb {
+dup 0.3 mul 1 exch sub sethsbcolor
+} bind def
+
+
+%draw the grid
+drawgrid
+
+%start of base pair probability data
+0.00 0.00 hsb 743 2925 0.000000 ubox
+0.00 0.00 hsb 743 2925 0.0000 lbox
+0.00 0.00 hsb 744 2924 0.000000 ubox
+0.00 0.00 hsb 744 2924 0.0000 lbox
+0.00 0.00 hsb 745 2923 0.000000 ubox
+0.00 0.00 hsb 745 2923 0.0000 lbox
+0.00 0.00 hsb 746 2922 0.000000 ubox
+0.00 0.00 hsb 746 2922 0.0000 lbox
+0.00 0.00 hsb 1084 1110 0.000000 ubox
+0.00 0.00 hsb 1084 1110 0.0000 lbox
+0.00 0.00 hsb 1085 1109 0.000000 ubox
+0.00 0.00 hsb 1085 1109 0.0000 lbox
+0.00 0.00 hsb 1086 1108 0.000000 ubox
+0.00 0.00 hsb 1086 1108 0.0000 lbox
+0.00 0.00 hsb 1087 1107 0.000000 ubox
+0.00 0.00 hsb 1087 1107 0.0000 lbox
+0.00 0.00 hsb 1089 1103 0.000000 ubox
+0.00 0.00 hsb 1089 1103 0.0000 lbox
+0.00 0.00 hsb 1090 1102 0.000000 ubox
+0.00 0.00 hsb 1090 1102 0.0000 lbox
+0.00 0.00 hsb 1092 1101 0.000000 ubox
+0.00 0.00 hsb 1092 1101 0.0000 lbox
+0.00 0.00 hsb 1093 1100 0.000000 ubox
+0.00 0.00 hsb 1093 1100 0.0000 lbox
+0.00 0.00 hsb 1094 1099 0.000000 ubox
+0.00 0.00 hsb 1094 1099 0.0000 lbox
+0.00 0.00 hsb 1111 1326 0.000000 ubox
+0.00 0.00 hsb 1111 1326 0.0000 lbox
+0.00 0.00 hsb 1112 1325 0.000000 ubox
+0.00 0.00 hsb 1112 1325 0.0000 lbox
+0.00 0.00 hsb 1113 1324 0.000000 ubox
+0.00 0.00 hsb 1113 1324 0.0000 lbox
+0.00 0.00 hsb 1115 1322 0.000000 ubox
+0.00 0.00 hsb 1115 1322 0.0000 lbox
+0.00 0.00 hsb 1116 1321 0.000000 ubox
+0.00 0.00 hsb 1116 1321 0.0000 lbox
+0.00 0.00 hsb 1117 1320 0.000000 ubox
+0.00 0.00 hsb 1117 1320 0.0000 lbox
+0.00 0.00 hsb 1118 1319 0.000000 ubox
+0.00 0.00 hsb 1118 1319 0.0000 lbox
+0.00 0.00 hsb 1119 1311 0.000000 ubox
+0.00 0.00 hsb 1119 1311 0.0000 lbox
+0.00 0.00 hsb 1120 1310 0.000000 ubox
+0.00 0.00 hsb 1120 1310 0.0000 lbox
+0.00 0.00 hsb 1121 1309 0.000000 ubox
+0.00 0.00 hsb 1121 1309 0.0000 lbox
+0.00 0.00 hsb 1122 1307 0.000000 ubox
+0.00 0.00 hsb 1122 1307 0.0000 lbox
+0.00 0.00 hsb 1123 1306 0.000000 ubox
+0.00 0.00 hsb 1123 1306 0.0000 lbox
+0.00 0.00 hsb 1124 1305 0.000000 ubox
+0.00 0.00 hsb 1124 1305 0.0000 lbox
+0.00 0.00 hsb 1126 1304 0.000000 ubox
+0.00 0.00 hsb 1126 1304 0.0000 lbox
+0.00 0.00 hsb 1127 1303 0.000000 ubox
+0.00 0.00 hsb 1127 1303 0.0000 lbox
+0.00 0.00 hsb 1128 1302 0.000000 ubox
+0.00 0.00 hsb 1128 1302 0.0000 lbox
+0.00 0.00 hsb 1130 1299 0.000000 ubox
+0.00 0.00 hsb 1130 1299 0.0000 lbox
+0.00 0.00 hsb 1131 1298 0.000000 ubox
+0.00 0.00 hsb 1131 1298 0.0000 lbox
+0.00 0.00 hsb 1132 1297 0.000000 ubox
+0.00 0.00 hsb 1132 1297 0.0000 lbox
+0.00 0.00 hsb 1133 1296 0.000000 ubox
+0.00 0.00 hsb 1133 1296 0.0000 lbox
+0.00 0.00 hsb 1134 1295 0.000000 ubox
+0.00 0.00 hsb 1134 1295 0.0000 lbox
+0.00 0.00 hsb 1135 1294 0.000000 ubox
+0.00 0.00 hsb 1135 1294 0.0000 lbox
+0.00 0.00 hsb 1136 1293 0.000000 ubox
+0.00 0.00 hsb 1136 1293 0.0000 lbox
+0.00 0.00 hsb 1137 1292 0.000000 ubox
+0.00 0.00 hsb 1137 1292 0.0000 lbox
+0.00 0.00 hsb 1138 1291 0.000000 ubox
+0.00 0.00 hsb 1138 1291 0.0000 lbox
+0.00 0.00 hsb 1140 1289 0.000000 ubox
+0.00 0.00 hsb 1140 1289 0.0000 lbox
+0.00 0.00 hsb 1141 1288 0.000000 ubox
+0.00 0.00 hsb 1141 1288 0.0000 lbox
+0.00 0.00 hsb 1142 1287 0.000000 ubox
+0.00 0.00 hsb 1142 1287 0.0000 lbox
+0.00 0.00 hsb 1143 1209 0.000000 ubox
+0.00 0.00 hsb 1143 1209 0.0000 lbox
+0.00 0.00 hsb 1144 1208 0.000000 ubox
+0.00 0.00 hsb 1144 1208 0.0000 lbox
+0.00 0.00 hsb 1145 1207 0.000000 ubox
+0.00 0.00 hsb 1145 1207 0.0000 lbox
+0.00 0.00 hsb 1146 1205 0.000000 ubox
+0.00 0.00 hsb 1146 1205 0.0000 lbox
+0.00 0.00 hsb 1147 1204 0.000000 ubox
+0.00 0.00 hsb 1147 1204 0.0000 lbox
+0.00 0.00 hsb 1148 1203 0.000000 ubox
+0.00 0.00 hsb 1148 1203 0.0000 lbox
+0.00 0.00 hsb 1149 1202 0.000000 ubox
+0.00 0.00 hsb 1149 1202 0.0000 lbox
+0.00 0.00 hsb 1150 1201 0.000000 ubox
+0.00 0.00 hsb 1150 1201 0.0000 lbox
+0.00 0.00 hsb 1153 1200 0.000000 ubox
+0.00 0.00 hsb 1153 1200 0.0000 lbox
+0.00 0.00 hsb 1154 1199 0.000000 ubox
+0.00 0.00 hsb 1154 1199 0.0000 lbox
+0.00 0.00 hsb 1155 1198 0.000000 ubox
+0.00 0.00 hsb 1155 1198 0.0000 lbox
+0.00 0.00 hsb 1157 1197 0.000000 ubox
+0.00 0.00 hsb 1157 1197 0.0000 lbox
+0.00 0.00 hsb 1158 1196 0.000000 ubox
+0.00 0.00 hsb 1158 1196 0.0000 lbox
+0.00 0.00 hsb 1159 1195 0.000000 ubox
+0.00 0.00 hsb 1159 1195 0.0000 lbox
+0.00 0.00 hsb 1160 1194 0.000000 ubox
+0.00 0.00 hsb 1160 1194 0.0000 lbox
+0.00 0.00 hsb 1161 1193 0.000000 ubox
+0.00 0.00 hsb 1161 1193 0.0000 lbox
+0.00 0.00 hsb 1165 1191 0.000000 ubox
+0.00 0.00 hsb 1165 1191 0.0000 lbox
+0.00 0.00 hsb 1166 1190 0.000000 ubox
+0.00 0.00 hsb 1166 1190 0.0000 lbox
+0.00 0.00 hsb 1168 1188 0.000000 ubox
+0.00 0.00 hsb 1168 1188 0.0000 lbox
+0.00 0.00 hsb 1169 1187 0.000000 ubox
+0.00 0.00 hsb 1169 1187 0.0000 lbox
+0.00 0.00 hsb 1170 1186 0.000000 ubox
+0.00 0.00 hsb 1170 1186 0.0000 lbox
+0.00 0.00 hsb 1172 1185 0.000000 ubox
+0.00 0.00 hsb 1172 1185 0.0000 lbox
+0.00 0.00 hsb 1173 1184 0.000000 ubox
+0.00 0.00 hsb 1173 1184 0.0000 lbox
+0.00 0.00 hsb 1174 1183 0.000000 ubox
+0.00 0.00 hsb 1174 1183 0.0000 lbox
+0.00 0.00 hsb 1175 1182 0.000000 ubox
+0.00 0.00 hsb 1175 1182 0.0000 lbox
+0.00 0.00 hsb 1213 1286 0.000000 ubox
+0.00 0.00 hsb 1213 1286 0.0000 lbox
+0.00 0.00 hsb 1214 1285 0.000000 ubox
+0.00 0.00 hsb 1214 1285 0.0000 lbox
+0.00 0.00 hsb 1215 1284 0.000000 ubox
+0.00 0.00 hsb 1215 1284 0.0000 lbox
+0.00 0.00 hsb 1216 1283 0.000000 ubox
+0.00 0.00 hsb 1216 1283 0.0000 lbox
+0.00 0.00 hsb 1218 1280 0.000000 ubox
+0.00 0.00 hsb 1218 1280 0.0000 lbox
+0.00 0.00 hsb 1219 1279 0.000000 ubox
+0.00 0.00 hsb 1219 1279 0.0000 lbox
+0.00 0.00 hsb 1221 1277 0.000000 ubox
+0.00 0.00 hsb 1221 1277 0.0000 lbox
+0.00 0.00 hsb 1222 1276 0.000000 ubox
+0.00 0.00 hsb 1222 1276 0.0000 lbox
+0.00 0.00 hsb 1223 1275 0.000000 ubox
+0.00 0.00 hsb 1223 1275 0.0000 lbox
+0.00 0.00 hsb 1224 1274 0.000000 ubox
+0.00 0.00 hsb 1224 1274 0.0000 lbox
+0.00 0.00 hsb 1226 1273 0.000000 ubox
+0.00 0.00 hsb 1226 1273 0.0000 lbox
+0.00 0.00 hsb 1227 1272 0.000000 ubox
+0.00 0.00 hsb 1227 1272 0.0000 lbox
+0.00 0.00 hsb 1229 1241 0.000000 ubox
+0.00 0.00 hsb 1229 1241 0.0000 lbox
+0.00 0.00 hsb 1230 1240 0.000000 ubox
+0.00 0.00 hsb 1230 1240 0.0000 lbox
+0.00 0.00 hsb 1231 1239 0.000000 ubox
+0.00 0.00 hsb 1231 1239 0.0000 lbox
+0.00 0.00 hsb 1232 1238 0.000000 ubox
+0.00 0.00 hsb 1232 1238 0.0000 lbox
+0.00 0.00 hsb 1243 1253 0.000000 ubox
+0.00 0.00 hsb 1243 1253 0.0000 lbox
+0.00 0.00 hsb 1244 1252 0.000000 ubox
+0.00 0.00 hsb 1244 1252 0.0000 lbox
+0.00 0.00 hsb 1245 1251 0.000000 ubox
+0.00 0.00 hsb 1245 1251 0.0000 lbox
+0.00 0.00 hsb 1259 1271 0.000000 ubox
+0.00 0.00 hsb 1259 1271 0.0000 lbox
+0.00 0.00 hsb 1260 1270 0.000000 ubox
+0.00 0.00 hsb 1260 1270 0.0000 lbox
+0.00 0.00 hsb 1261 1269 0.000000 ubox
+0.00 0.00 hsb 1261 1269 0.0000 lbox
+0.00 0.00 hsb 1262 1268 0.000000 ubox
+0.00 0.00 hsb 1262 1268 0.0000 lbox
+0.00 0.00 hsb 1263 1267 0.000000 ubox
+0.00 0.00 hsb 1263 1267 0.0000 lbox
+0.00 0.00 hsb 1329 1391 0.000000 ubox
+0.00 0.00 hsb 1329 1391 0.0000 lbox
+0.00 0.00 hsb 1330 1390 0.000000 ubox
+0.00 0.00 hsb 1330 1390 0.0000 lbox
+0.00 0.00 hsb 1331 1389 0.000000 ubox
+0.00 0.00 hsb 1331 1389 0.0000 lbox
+0.00 0.00 hsb 1332 1388 0.000000 ubox
+0.00 0.00 hsb 1332 1388 0.0000 lbox
+0.00 0.00 hsb 1333 1387 0.000000 ubox
+0.00 0.00 hsb 1333 1387 0.0000 lbox
+0.00 0.00 hsb 1334 1386 0.000000 ubox
+0.00 0.00 hsb 1334 1386 0.0000 lbox
+0.00 0.00 hsb 1335 1384 0.000000 ubox
+0.00 0.00 hsb 1335 1384 0.0000 lbox
+0.00 0.00 hsb 1336 1383 0.000000 ubox
+0.00 0.00 hsb 1336 1383 0.0000 lbox
+0.00 0.00 hsb 1337 1382 0.000000 ubox
+0.00 0.00 hsb 1337 1382 0.0000 lbox
+0.00 0.00 hsb 1340 1380 0.000000 ubox
+0.00 0.00 hsb 1340 1380 0.0000 lbox
+0.00 0.00 hsb 1341 1379 0.000000 ubox
+0.00 0.00 hsb 1341 1379 0.0000 lbox
+0.00 0.00 hsb 1342 1378 0.000000 ubox
+0.00 0.00 hsb 1342 1378 0.0000 lbox
+0.00 0.00 hsb 1345 1360 0.000000 ubox
+0.00 0.00 hsb 1345 1360 0.0000 lbox
+0.00 0.00 hsb 1346 1359 0.000000 ubox
+0.00 0.00 hsb 1346 1359 0.0000 lbox
+0.00 0.00 hsb 1347 1358 0.000000 ubox
+0.00 0.00 hsb 1347 1358 0.0000 lbox
+0.00 0.00 hsb 1348 1357 0.000000 ubox
+0.00 0.00 hsb 1348 1357 0.0000 lbox
+0.00 0.00 hsb 1349 1356 0.000000 ubox
+0.00 0.00 hsb 1349 1356 0.0000 lbox
+0.00 0.00 hsb 1361 1377 0.000000 ubox
+0.00 0.00 hsb 1361 1377 0.0000 lbox
+0.00 0.00 hsb 1362 1376 0.000000 ubox
+0.00 0.00 hsb 1362 1376 0.0000 lbox
+0.00 0.00 hsb 1363 1374 0.000000 ubox
+0.00 0.00 hsb 1363 1374 0.0000 lbox
+0.00 0.00 hsb 1364 1373 0.000000 ubox
+0.00 0.00 hsb 1364 1373 0.0000 lbox
+0.00 0.00 hsb 1365 1372 0.000000 ubox
+0.00 0.00 hsb 1365 1372 0.0000 lbox
+0.00 0.00 hsb 1366 1371 0.000000 ubox
+0.00 0.00 hsb 1366 1371 0.0000 lbox
+0.00 0.00 hsb 1392 2774 0.000000 ubox
+0.00 0.00 hsb 1392 2774 0.0000 lbox
+0.00 0.00 hsb 1393 2773 0.000000 ubox
+0.00 0.00 hsb 1393 2773 0.0000 lbox
+0.00 0.00 hsb 1394 2772 0.000000 ubox
+0.00 0.00 hsb 1394 2772 0.0000 lbox
+0.00 0.00 hsb 1395 2771 0.000000 ubox
+0.00 0.00 hsb 1395 2771 0.0000 lbox
+0.00 0.00 hsb 1396 2764 0.000000 ubox
+0.00 0.00 hsb 1396 2764 0.0000 lbox
+0.00 0.00 hsb 1397 2763 0.000000 ubox
+0.00 0.00 hsb 1397 2763 0.0000 lbox
+0.00 0.00 hsb 1398 2762 0.000000 ubox
+0.00 0.00 hsb 1398 2762 0.0000 lbox
+0.00 0.00 hsb 1399 2761 0.000000 ubox
+0.00 0.00 hsb 1399 2761 0.0000 lbox
+0.00 0.00 hsb 1400 2760 0.000000 ubox
+0.00 0.00 hsb 1400 2760 0.0000 lbox
+0.00 0.00 hsb 1402 2758 0.000000 ubox
+0.00 0.00 hsb 1402 2758 0.0000 lbox
+0.00 0.00 hsb 1403 2757 0.000000 ubox
+0.00 0.00 hsb 1403 2757 0.0000 lbox
+0.00 0.00 hsb 1404 2756 0.000000 ubox
+0.00 0.00 hsb 1404 2756 0.0000 lbox
+0.00 0.00 hsb 1405 2755 0.000000 ubox
+0.00 0.00 hsb 1405 2755 0.0000 lbox
+0.00 0.00 hsb 1406 2754 0.000000 ubox
+0.00 0.00 hsb 1406 2754 0.0000 lbox
+0.00 0.00 hsb 1407 2753 0.000000 ubox
+0.00 0.00 hsb 1407 2753 0.0000 lbox
+0.00 0.00 hsb 1408 2752 0.000000 ubox
+0.00 0.00 hsb 1408 2752 0.0000 lbox
+0.00 0.00 hsb 1409 2751 0.000000 ubox
+0.00 0.00 hsb 1409 2751 0.0000 lbox
+0.00 0.00 hsb 1410 2587 0.000000 ubox
+0.00 0.00 hsb 1410 2587 0.0000 lbox
+0.00 0.00 hsb 1411 2586 0.000000 ubox
+0.00 0.00 hsb 1411 2586 0.0000 lbox
+0.00 0.00 hsb 1412 2585 0.000000 ubox
+0.00 0.00 hsb 1412 2585 0.0000 lbox
+0.00 0.00 hsb 1413 2584 0.000000 ubox
+0.00 0.00 hsb 1413 2584 0.0000 lbox
+0.00 0.00 hsb 1415 2583 0.000000 ubox
+0.00 0.00 hsb 1415 2583 0.0000 lbox
+0.00 0.00 hsb 1416 2582 0.000000 ubox
+0.00 0.00 hsb 1416 2582 0.0000 lbox
+0.00 0.00 hsb 1417 2581 0.000000 ubox
+0.00 0.00 hsb 1417 2581 0.0000 lbox
+0.00 0.00 hsb 1418 2580 0.000000 ubox
+0.00 0.00 hsb 1418 2580 0.0000 lbox
+0.00 0.00 hsb 1419 2579 0.000000 ubox
+0.00 0.00 hsb 1419 2579 0.0000 lbox
+0.00 0.00 hsb 1420 2423 0.000000 ubox
+0.00 0.00 hsb 1420 2423 0.0000 lbox
+0.00 0.00 hsb 1421 2422 0.000000 ubox
+0.00 0.00 hsb 1421 2422 0.0000 lbox
+0.00 0.00 hsb 1422 2421 0.000000 ubox
+0.00 0.00 hsb 1422 2421 0.0000 lbox
+0.00 0.00 hsb 1423 2420 0.000000 ubox
+0.00 0.00 hsb 1423 2420 0.0000 lbox
+0.00 0.00 hsb 1424 2419 0.000000 ubox
+0.00 0.00 hsb 1424 2419 0.0000 lbox
+0.00 0.00 hsb 1426 2418 0.000000 ubox
+0.00 0.00 hsb 1426 2418 0.0000 lbox
+0.00 0.00 hsb 1427 2417 0.000000 ubox
+0.00 0.00 hsb 1427 2417 0.0000 lbox
+0.00 0.00 hsb 1428 1455 0.000000 ubox
+0.00 0.00 hsb 1428 1455 0.0000 lbox
+0.00 0.00 hsb 1429 1454 0.000000 ubox
+0.00 0.00 hsb 1429 1454 0.0000 lbox
+0.00 0.00 hsb 1432 1453 0.000000 ubox
+0.00 0.00 hsb 1432 1453 0.0000 lbox
+0.00 0.00 hsb 1433 1452 0.000000 ubox
+0.00 0.00 hsb 1433 1452 0.0000 lbox
+0.00 0.00 hsb 1434 1451 0.000000 ubox
+0.00 0.00 hsb 1434 1451 0.0000 lbox
+0.00 0.00 hsb 1435 1449 0.000000 ubox
+0.00 0.00 hsb 1435 1449 0.0000 lbox
+0.00 0.00 hsb 1436 1448 0.000000 ubox
+0.00 0.00 hsb 1436 1448 0.0000 lbox
+0.00 0.00 hsb 1437 1447 0.000000 ubox
+0.00 0.00 hsb 1437 1447 0.0000 lbox
+0.00 0.00 hsb 1457 2393 0.000000 ubox
+0.00 0.00 hsb 1457 2393 0.0000 lbox
+0.00 0.00 hsb 1458 2392 0.000000 ubox
+0.00 0.00 hsb 1458 2392 0.0000 lbox
+0.00 0.00 hsb 1459 2391 0.000000 ubox
+0.00 0.00 hsb 1459 2391 0.0000 lbox
+0.00 0.00 hsb 1460 2390 0.000000 ubox
+0.00 0.00 hsb 1460 2390 0.0000 lbox
+0.00 0.00 hsb 1461 2389 0.000000 ubox
+0.00 0.00 hsb 1461 2389 0.0000 lbox
+0.00 0.00 hsb 1462 2388 0.000000 ubox
+0.00 0.00 hsb 1462 2388 0.0000 lbox
+0.00 0.00 hsb 1463 2387 0.000000 ubox
+0.00 0.00 hsb 1463 2387 0.0000 lbox
+0.00 0.00 hsb 1464 2386 0.000000 ubox
+0.00 0.00 hsb 1464 2386 0.0000 lbox
+0.00 0.00 hsb 1465 2385 0.000000 ubox
+0.00 0.00 hsb 1465 2385 0.0000 lbox
+0.00 0.00 hsb 1466 2332 0.000000 ubox
+0.00 0.00 hsb 1466 2332 0.0000 lbox
+0.00 0.00 hsb 1467 2331 0.000000 ubox
+0.00 0.00 hsb 1467 2331 0.0000 lbox
+0.00 0.00 hsb 1468 2330 0.000000 ubox
+0.00 0.00 hsb 1468 2330 0.0000 lbox
+0.00 0.00 hsb 1469 2329 0.000000 ubox
+0.00 0.00 hsb 1469 2329 0.0000 lbox
+0.00 0.00 hsb 1470 2328 0.000000 ubox
+0.00 0.00 hsb 1470 2328 0.0000 lbox
+0.00 0.00 hsb 1471 2327 0.000000 ubox
+0.00 0.00 hsb 1471 2327 0.0000 lbox
+0.00 0.00 hsb 1472 2326 0.000000 ubox
+0.00 0.00 hsb 1472 2326 0.0000 lbox
+0.00 0.00 hsb 1473 2325 0.000000 ubox
+0.00 0.00 hsb 1473 2325 0.0000 lbox
+0.00 0.00 hsb 1474 1488 0.000000 ubox
+0.00 0.00 hsb 1474 1488 0.0000 lbox
+0.00 0.00 hsb 1475 1487 0.000000 ubox
+0.00 0.00 hsb 1475 1487 0.0000 lbox
+0.00 0.00 hsb 1476 1486 0.000000 ubox
+0.00 0.00 hsb 1476 1486 0.0000 lbox
+0.00 0.00 hsb 1477 1485 0.000000 ubox
+0.00 0.00 hsb 1477 1485 0.0000 lbox
+0.00 0.00 hsb 1478 1484 0.000000 ubox
+0.00 0.00 hsb 1478 1484 0.0000 lbox
+0.00 0.00 hsb 1479 1483 0.000000 ubox
+0.00 0.00 hsb 1479 1483 0.0000 lbox
+0.00 0.00 hsb 1490 2324 0.000000 ubox
+0.00 0.00 hsb 1490 2324 0.0000 lbox
+0.00 0.00 hsb 1491 2323 0.000000 ubox
+0.00 0.00 hsb 1491 2323 0.0000 lbox
+0.00 0.00 hsb 1492 2322 0.000000 ubox
+0.00 0.00 hsb 1492 2322 0.0000 lbox
+0.00 0.00 hsb 1495 2067 0.000000 ubox
+0.00 0.00 hsb 1495 2067 0.0000 lbox
+0.00 0.00 hsb 1496 2066 0.000000 ubox
+0.00 0.00 hsb 1496 2066 0.0000 lbox
+0.00 0.00 hsb 1497 2065 0.000000 ubox
+0.00 0.00 hsb 1497 2065 0.0000 lbox
+0.00 0.00 hsb 1498 2064 0.000000 ubox
+0.00 0.00 hsb 1498 2064 0.0000 lbox
+0.00 0.00 hsb 1499 2063 0.000000 ubox
+0.00 0.00 hsb 1499 2063 0.0000 lbox
+0.00 0.00 hsb 1501 2062 0.000000 ubox
+0.00 0.00 hsb 1501 2062 0.0000 lbox
+0.00 0.00 hsb 1502 2061 0.000000 ubox
+0.00 0.00 hsb 1502 2061 0.0000 lbox
+0.00 0.00 hsb 1504 2060 0.000000 ubox
+0.00 0.00 hsb 1504 2060 0.0000 lbox
+0.00 0.00 hsb 1505 2059 0.000000 ubox
+0.00 0.00 hsb 1505 2059 0.0000 lbox
+0.00 0.00 hsb 1506 2058 0.000000 ubox
+0.00 0.00 hsb 1506 2058 0.0000 lbox
+0.00 0.00 hsb 1507 2055 0.000000 ubox
+0.00 0.00 hsb 1507 2055 0.0000 lbox
+0.00 0.00 hsb 1508 2054 0.000000 ubox
+0.00 0.00 hsb 1508 2054 0.0000 lbox
+0.00 0.00 hsb 1509 2053 0.000000 ubox
+0.00 0.00 hsb 1509 2053 0.0000 lbox
+0.00 0.00 hsb 1510 2052 0.000000 ubox
+0.00 0.00 hsb 1510 2052 0.0000 lbox
+0.00 0.00 hsb 1511 2051 0.000000 ubox
+0.00 0.00 hsb 1511 2051 0.0000 lbox
+0.00 0.00 hsb 1513 2050 0.000000 ubox
+0.00 0.00 hsb 1513 2050 0.0000 lbox
+0.00 0.00 hsb 1514 2049 0.000000 ubox
+0.00 0.00 hsb 1514 2049 0.0000 lbox
+0.00 0.00 hsb 1515 2048 0.000000 ubox
+0.00 0.00 hsb 1515 2048 0.0000 lbox
+0.00 0.00 hsb 1516 2047 0.000000 ubox
+0.00 0.00 hsb 1516 2047 0.0000 lbox
+0.00 0.00 hsb 1517 2046 0.000000 ubox
+0.00 0.00 hsb 1517 2046 0.0000 lbox
+0.00 0.00 hsb 1518 2045 0.000000 ubox
+0.00 0.00 hsb 1518 2045 0.0000 lbox
+0.00 0.00 hsb 1519 1719 0.000000 ubox
+0.00 0.00 hsb 1519 1719 0.0000 lbox
+0.00 0.00 hsb 1520 1718 0.000000 ubox
+0.00 0.00 hsb 1520 1718 0.0000 lbox
+0.00 0.00 hsb 1521 1717 0.000000 ubox
+0.00 0.00 hsb 1521 1717 0.0000 lbox
+0.00 0.00 hsb 1522 1716 0.000000 ubox
+0.00 0.00 hsb 1522 1716 0.0000 lbox
+0.00 0.00 hsb 1523 1715 0.000000 ubox
+0.00 0.00 hsb 1523 1715 0.0000 lbox
+0.00 0.00 hsb 1524 1714 0.000000 ubox
+0.00 0.00 hsb 1524 1714 0.0000 lbox
+0.00 0.00 hsb 1525 1710 0.000000 ubox
+0.00 0.00 hsb 1525 1710 0.0000 lbox
+0.00 0.00 hsb 1526 1709 0.000000 ubox
+0.00 0.00 hsb 1526 1709 0.0000 lbox
+0.00 0.00 hsb 1527 1708 0.000000 ubox
+0.00 0.00 hsb 1527 1708 0.0000 lbox
+0.00 0.00 hsb 1528 1707 0.000000 ubox
+0.00 0.00 hsb 1528 1707 0.0000 lbox
+0.00 0.00 hsb 1529 1706 0.000000 ubox
+0.00 0.00 hsb 1529 1706 0.0000 lbox
+0.00 0.00 hsb 1530 1699 0.000000 ubox
+0.00 0.00 hsb 1530 1699 0.0000 lbox
+0.00 0.00 hsb 1531 1698 0.000000 ubox
+0.00 0.00 hsb 1531 1698 0.0000 lbox
+0.00 0.00 hsb 1532 1697 0.000000 ubox
+0.00 0.00 hsb 1532 1697 0.0000 lbox
+0.00 0.00 hsb 1533 1696 0.000000 ubox
+0.00 0.00 hsb 1533 1696 0.0000 lbox
+0.00 0.00 hsb 1534 1695 0.000000 ubox
+0.00 0.00 hsb 1534 1695 0.0000 lbox
+0.00 0.00 hsb 1535 1694 0.000000 ubox
+0.00 0.00 hsb 1535 1694 0.0000 lbox
+0.00 0.00 hsb 1537 1692 0.000000 ubox
+0.00 0.00 hsb 1537 1692 0.0000 lbox
+0.00 0.00 hsb 1538 1691 0.000000 ubox
+0.00 0.00 hsb 1538 1691 0.0000 lbox
+0.00 0.00 hsb 1541 1576 0.000000 ubox
+0.00 0.00 hsb 1541 1576 0.0000 lbox
+0.00 0.00 hsb 1542 1575 0.000000 ubox
+0.00 0.00 hsb 1542 1575 0.0000 lbox
+0.00 0.00 hsb 1543 1574 0.000000 ubox
+0.00 0.00 hsb 1543 1574 0.0000 lbox
+0.00 0.00 hsb 1544 1573 0.000000 ubox
+0.00 0.00 hsb 1544 1573 0.0000 lbox
+0.00 0.00 hsb 1545 1572 0.000000 ubox
+0.00 0.00 hsb 1545 1572 0.0000 lbox
+0.00 0.00 hsb 1546 1571 0.000000 ubox
+0.00 0.00 hsb 1546 1571 0.0000 lbox
+0.00 0.00 hsb 1551 1567 0.000000 ubox
+0.00 0.00 hsb 1551 1567 0.0000 lbox
+0.00 0.00 hsb 1552 1566 0.000000 ubox
+0.00 0.00 hsb 1552 1566 0.0000 lbox
+0.00 0.00 hsb 1553 1565 0.000000 ubox
+0.00 0.00 hsb 1553 1565 0.0000 lbox
+0.00 0.00 hsb 1554 1564 0.000000 ubox
+0.00 0.00 hsb 1554 1564 0.0000 lbox
+0.00 0.00 hsb 1555 1563 0.000000 ubox
+0.00 0.00 hsb 1555 1563 0.0000 lbox
+0.00 0.00 hsb 1556 1562 0.000000 ubox
+0.00 0.00 hsb 1556 1562 0.0000 lbox
+0.00 0.00 hsb 1577 1597 0.000000 ubox
+0.00 0.00 hsb 1577 1597 0.0000 lbox
+0.00 0.00 hsb 1578 1596 0.000000 ubox
+0.00 0.00 hsb 1578 1596 0.0000 lbox
+0.00 0.00 hsb 1579 1595 0.000000 ubox
+0.00 0.00 hsb 1579 1595 0.0000 lbox
+0.00 0.00 hsb 1582 1592 0.000000 ubox
+0.00 0.00 hsb 1582 1592 0.0000 lbox
+0.00 0.00 hsb 1583 1591 0.000000 ubox
+0.00 0.00 hsb 1583 1591 0.0000 lbox
+0.00 0.00 hsb 1602 1688 0.000000 ubox
+0.00 0.00 hsb 1602 1688 0.0000 lbox
+0.00 0.00 hsb 1603 1687 0.000000 ubox
+0.00 0.00 hsb 1603 1687 0.0000 lbox
+0.00 0.00 hsb 1604 1686 0.000000 ubox
+0.00 0.00 hsb 1604 1686 0.0000 lbox
+0.00 0.00 hsb 1605 1685 0.000000 ubox
+0.00 0.00 hsb 1605 1685 0.0000 lbox
+0.00 0.00 hsb 1607 1681 0.000000 ubox
+0.00 0.00 hsb 1607 1681 0.0000 lbox
+0.00 0.00 hsb 1608 1680 0.000000 ubox
+0.00 0.00 hsb 1608 1680 0.0000 lbox
+0.00 0.00 hsb 1609 1679 0.000000 ubox
+0.00 0.00 hsb 1609 1679 0.0000 lbox
+0.00 0.00 hsb 1612 1677 0.000000 ubox
+0.00 0.00 hsb 1612 1677 0.0000 lbox
+0.00 0.00 hsb 1613 1676 0.000000 ubox
+0.00 0.00 hsb 1613 1676 0.0000 lbox
+0.00 0.00 hsb 1615 1674 0.000000 ubox
+0.00 0.00 hsb 1615 1674 0.0000 lbox
+0.00 0.00 hsb 1616 1673 0.000000 ubox
+0.00 0.00 hsb 1616 1673 0.0000 lbox
+0.00 0.00 hsb 1617 1672 0.000000 ubox
+0.00 0.00 hsb 1617 1672 0.0000 lbox
+0.00 0.00 hsb 1618 1671 0.000000 ubox
+0.00 0.00 hsb 1618 1671 0.0000 lbox
+0.00 0.00 hsb 1620 1670 0.000000 ubox
+0.00 0.00 hsb 1620 1670 0.0000 lbox
+0.00 0.00 hsb 1621 1669 0.000000 ubox
+0.00 0.00 hsb 1621 1669 0.0000 lbox
+0.00 0.00 hsb 1622 1668 0.000000 ubox
+0.00 0.00 hsb 1622 1668 0.0000 lbox
+0.00 0.00 hsb 1627 1664 0.000000 ubox
+0.00 0.00 hsb 1627 1664 0.0000 lbox
+0.00 0.00 hsb 1628 1663 0.000000 ubox
+0.00 0.00 hsb 1628 1663 0.0000 lbox
+0.00 0.00 hsb 1629 1662 0.000000 ubox
+0.00 0.00 hsb 1629 1662 0.0000 lbox
+0.00 0.00 hsb 1631 1660 0.000000 ubox
+0.00 0.00 hsb 1631 1660 0.0000 lbox
+0.00 0.00 hsb 1632 1659 0.000000 ubox
+0.00 0.00 hsb 1632 1659 0.0000 lbox
+0.00 0.00 hsb 1634 1657 0.000000 ubox
+0.00 0.00 hsb 1634 1657 0.0000 lbox
+0.00 0.00 hsb 1635 1656 0.000000 ubox
+0.00 0.00 hsb 1635 1656 0.0000 lbox
+0.00 0.00 hsb 1636 1655 0.000000 ubox
+0.00 0.00 hsb 1636 1655 0.0000 lbox
+0.00 0.00 hsb 1637 1654 0.000000 ubox
+0.00 0.00 hsb 1637 1654 0.0000 lbox
+0.00 0.00 hsb 1638 1653 0.000000 ubox
+0.00 0.00 hsb 1638 1653 0.0000 lbox
+0.00 0.00 hsb 1639 1652 0.000000 ubox
+0.00 0.00 hsb 1639 1652 0.0000 lbox
+0.00 0.00 hsb 1640 1651 0.000000 ubox
+0.00 0.00 hsb 1640 1651 0.0000 lbox
+0.00 0.00 hsb 1641 1650 0.000000 ubox
+0.00 0.00 hsb 1641 1650 0.0000 lbox
+0.00 0.00 hsb 1720 2042 0.000000 ubox
+0.00 0.00 hsb 1720 2042 0.0000 lbox
+0.00 0.00 hsb 1721 2041 0.000000 ubox
+0.00 0.00 hsb 1721 2041 0.0000 lbox
+0.00 0.00 hsb 1722 2040 0.000000 ubox
+0.00 0.00 hsb 1722 2040 0.0000 lbox
+0.00 0.00 hsb 1724 2039 0.000000 ubox
+0.00 0.00 hsb 1724 2039 0.0000 lbox
+0.00 0.00 hsb 1725 2038 0.000000 ubox
+0.00 0.00 hsb 1725 2038 0.0000 lbox
+0.00 0.00 hsb 1726 2037 0.000000 ubox
+0.00 0.00 hsb 1726 2037 0.0000 lbox
+0.00 0.00 hsb 1727 2036 0.000000 ubox
+0.00 0.00 hsb 1727 2036 0.0000 lbox
+0.00 0.00 hsb 1728 2035 0.000000 ubox
+0.00 0.00 hsb 1728 2035 0.0000 lbox
+0.00 0.00 hsb 1729 2034 0.000000 ubox
+0.00 0.00 hsb 1729 2034 0.0000 lbox
+0.00 0.00 hsb 1730 2033 0.000000 ubox
+0.00 0.00 hsb 1730 2033 0.0000 lbox
+0.00 0.00 hsb 1731 2015 0.000000 ubox
+0.00 0.00 hsb 1731 2015 0.0000 lbox
+0.00 0.00 hsb 1732 2014 0.000000 ubox
+0.00 0.00 hsb 1732 2014 0.0000 lbox
+0.00 0.00 hsb 1734 2012 0.000000 ubox
+0.00 0.00 hsb 1734 2012 0.0000 lbox
+0.00 0.00 hsb 1735 2011 0.000000 ubox
+0.00 0.00 hsb 1735 2011 0.0000 lbox
+0.00 0.00 hsb 1740 2006 0.000000 ubox
+0.00 0.00 hsb 1740 2006 0.0000 lbox
+0.00 0.00 hsb 1741 2005 0.000000 ubox
+0.00 0.00 hsb 1741 2005 0.0000 lbox
+0.00 0.00 hsb 1742 2004 0.000000 ubox
+0.00 0.00 hsb 1742 2004 0.0000 lbox
+0.00 0.00 hsb 1743 2003 0.000000 ubox
+0.00 0.00 hsb 1743 2003 0.0000 lbox
+0.00 0.00 hsb 1744 2002 0.000000 ubox
+0.00 0.00 hsb 1744 2002 0.0000 lbox
+0.00 0.00 hsb 1745 2001 0.000000 ubox
+0.00 0.00 hsb 1745 2001 0.0000 lbox
+0.00 0.00 hsb 1746 2000 0.000000 ubox
+0.00 0.00 hsb 1746 2000 0.0000 lbox
+0.00 0.00 hsb 1747 1998 0.000000 ubox
+0.00 0.00 hsb 1747 1998 0.0000 lbox
+0.00 0.00 hsb 1748 1997 0.000000 ubox
+0.00 0.00 hsb 1748 1997 0.0000 lbox
+0.00 0.00 hsb 1749 1996 0.000000 ubox
+0.00 0.00 hsb 1749 1996 0.0000 lbox
+0.00 0.00 hsb 1751 1995 0.000000 ubox
+0.00 0.00 hsb 1751 1995 0.0000 lbox
+0.00 0.00 hsb 1752 1994 0.000000 ubox
+0.00 0.00 hsb 1752 1994 0.0000 lbox
+0.00 0.00 hsb 1753 1993 0.000000 ubox
+0.00 0.00 hsb 1753 1993 0.0000 lbox
+0.00 0.00 hsb 1754 1992 0.000000 ubox
+0.00 0.00 hsb 1754 1992 0.0000 lbox
+0.00 0.00 hsb 1755 1991 0.000000 ubox
+0.00 0.00 hsb 1755 1991 0.0000 lbox
+0.00 0.00 hsb 1757 1778 0.000000 ubox
+0.00 0.00 hsb 1757 1778 0.0000 lbox
+0.00 0.00 hsb 1758 1777 0.000000 ubox
+0.00 0.00 hsb 1758 1777 0.0000 lbox
+0.00 0.00 hsb 1759 1776 0.000000 ubox
+0.00 0.00 hsb 1759 1776 0.0000 lbox
+0.00 0.00 hsb 1761 1774 0.000000 ubox
+0.00 0.00 hsb 1761 1774 0.0000 lbox
+0.00 0.00 hsb 1762 1773 0.000000 ubox
+0.00 0.00 hsb 1762 1773 0.0000 lbox
+0.00 0.00 hsb 1763 1772 0.000000 ubox
+0.00 0.00 hsb 1763 1772 0.0000 lbox
+0.00 0.00 hsb 1764 1771 0.000000 ubox
+0.00 0.00 hsb 1764 1771 0.0000 lbox
+0.00 0.00 hsb 1765 1770 0.000000 ubox
+0.00 0.00 hsb 1765 1770 0.0000 lbox
+0.00 0.00 hsb 1781 1832 0.000000 ubox
+0.00 0.00 hsb 1781 1832 0.0000 lbox
+0.00 0.00 hsb 1782 1831 0.000000 ubox
+0.00 0.00 hsb 1782 1831 0.0000 lbox
+0.00 0.00 hsb 1783 1830 0.000000 ubox
+0.00 0.00 hsb 1783 1830 0.0000 lbox
+0.00 0.00 hsb 1784 1829 0.000000 ubox
+0.00 0.00 hsb 1784 1829 0.0000 lbox
+0.00 0.00 hsb 1785 1826 0.000000 ubox
+0.00 0.00 hsb 1785 1826 0.0000 lbox
+0.00 0.00 hsb 1786 1825 0.000000 ubox
+0.00 0.00 hsb 1786 1825 0.0000 lbox
+0.00 0.00 hsb 1787 1824 0.000000 ubox
+0.00 0.00 hsb 1787 1824 0.0000 lbox
+0.00 0.00 hsb 1788 1823 0.000000 ubox
+0.00 0.00 hsb 1788 1823 0.0000 lbox
+0.00 0.00 hsb 1789 1822 0.000000 ubox
+0.00 0.00 hsb 1789 1822 0.0000 lbox
+0.00 0.00 hsb 1790 1821 0.000000 ubox
+0.00 0.00 hsb 1790 1821 0.0000 lbox
+0.00 0.00 hsb 1791 1799 0.000000 ubox
+0.00 0.00 hsb 1791 1799 0.0000 lbox
+0.00 0.00 hsb 1792 1798 0.000000 ubox
+0.00 0.00 hsb 1792 1798 0.0000 lbox
+0.00 0.00 hsb 1804 1818 0.000000 ubox
+0.00 0.00 hsb 1804 1818 0.0000 lbox
+0.00 0.00 hsb 1805 1817 0.000000 ubox
+0.00 0.00 hsb 1805 1817 0.0000 lbox
+0.00 0.00 hsb 1806 1816 0.000000 ubox
+0.00 0.00 hsb 1806 1816 0.0000 lbox
+0.00 0.00 hsb 1807 1813 0.000000 ubox
+0.00 0.00 hsb 1807 1813 0.0000 lbox
+0.00 0.00 hsb 1808 1812 0.000000 ubox
+0.00 0.00 hsb 1808 1812 0.0000 lbox
+0.00 0.00 hsb 1833 1962 0.000000 ubox
+0.00 0.00 hsb 1833 1962 0.0000 lbox
+0.00 0.00 hsb 1834 1961 0.000000 ubox
+0.00 0.00 hsb 1834 1961 0.0000 lbox
+0.00 0.00 hsb 1835 1959 0.000000 ubox
+0.00 0.00 hsb 1835 1959 0.0000 lbox
+0.00 0.00 hsb 1836 1958 0.000000 ubox
+0.00 0.00 hsb 1836 1958 0.0000 lbox
+0.00 0.00 hsb 1837 1957 0.000000 ubox
+0.00 0.00 hsb 1837 1957 0.0000 lbox
+0.00 0.00 hsb 1838 1956 0.000000 ubox
+0.00 0.00 hsb 1838 1956 0.0000 lbox
+0.00 0.00 hsb 1839 1955 0.000000 ubox
+0.00 0.00 hsb 1839 1955 0.0000 lbox
+0.00 0.00 hsb 1840 1954 0.000000 ubox
+0.00 0.00 hsb 1840 1954 0.0000 lbox
+0.00 0.00 hsb 1841 1953 0.000000 ubox
+0.00 0.00 hsb 1841 1953 0.0000 lbox
+0.00 0.00 hsb 1842 1952 0.000000 ubox
+0.00 0.00 hsb 1842 1952 0.0000 lbox
+0.00 0.00 hsb 1843 1951 0.000000 ubox
+0.00 0.00 hsb 1843 1951 0.0000 lbox
+0.00 0.00 hsb 1846 1948 0.000000 ubox
+0.00 0.00 hsb 1846 1948 0.0000 lbox
+0.00 0.00 hsb 1847 1947 0.000000 ubox
+0.00 0.00 hsb 1847 1947 0.0000 lbox
+0.00 0.00 hsb 1848 1946 0.000000 ubox
+0.00 0.00 hsb 1848 1946 0.0000 lbox
+0.00 0.00 hsb 1851 1945 0.000000 ubox
+0.00 0.00 hsb 1851 1945 0.0000 lbox
+0.00 0.00 hsb 1852 1944 0.000000 ubox
+0.00 0.00 hsb 1852 1944 0.0000 lbox
+0.00 0.00 hsb 1853 1943 0.000000 ubox
+0.00 0.00 hsb 1853 1943 0.0000 lbox
+0.00 0.00 hsb 1854 1940 0.000000 ubox
+0.00 0.00 hsb 1854 1940 0.0000 lbox
+0.00 0.00 hsb 1855 1939 0.000000 ubox
+0.00 0.00 hsb 1855 1939 0.0000 lbox
+0.00 0.00 hsb 1856 1938 0.000000 ubox
+0.00 0.00 hsb 1856 1938 0.0000 lbox
+0.00 0.00 hsb 1859 1932 0.000000 ubox
+0.00 0.00 hsb 1859 1932 0.0000 lbox
+0.00 0.00 hsb 1860 1931 0.000000 ubox
+0.00 0.00 hsb 1860 1931 0.0000 lbox
+0.00 0.00 hsb 1864 1930 0.000000 ubox
+0.00 0.00 hsb 1864 1930 0.0000 lbox
+0.00 0.00 hsb 1865 1929 0.000000 ubox
+0.00 0.00 hsb 1865 1929 0.0000 lbox
+0.00 0.00 hsb 1866 1928 0.000000 ubox
+0.00 0.00 hsb 1866 1928 0.0000 lbox
+0.00 0.00 hsb 1867 1927 0.000000 ubox
+0.00 0.00 hsb 1867 1927 0.0000 lbox
+0.00 0.00 hsb 1868 1926 0.000000 ubox
+0.00 0.00 hsb 1868 1926 0.0000 lbox
+0.00 0.00 hsb 1869 1925 0.000000 ubox
+0.00 0.00 hsb 1869 1925 0.0000 lbox
+0.00 0.00 hsb 1870 1924 0.000000 ubox
+0.00 0.00 hsb 1870 1924 0.0000 lbox
+0.00 0.00 hsb 1871 1923 0.000000 ubox
+0.00 0.00 hsb 1871 1923 0.0000 lbox
+0.00 0.00 hsb 1872 1922 0.000000 ubox
+0.00 0.00 hsb 1872 1922 0.0000 lbox
+0.00 0.00 hsb 1873 1921 0.000000 ubox
+0.00 0.00 hsb 1873 1921 0.0000 lbox
+0.00 0.00 hsb 1874 1920 0.000000 ubox
+0.00 0.00 hsb 1874 1920 0.0000 lbox
+0.00 0.00 hsb 1877 1919 0.000000 ubox
+0.00 0.00 hsb 1877 1919 0.0000 lbox
+0.00 0.00 hsb 1878 1918 0.000000 ubox
+0.00 0.00 hsb 1878 1918 0.0000 lbox
+0.00 0.00 hsb 1881 1917 0.000000 ubox
+0.00 0.00 hsb 1881 1917 0.0000 lbox
+0.00 0.00 hsb 1882 1916 0.000000 ubox
+0.00 0.00 hsb 1882 1916 0.0000 lbox
+0.00 0.00 hsb 1883 1915 0.000000 ubox
+0.00 0.00 hsb 1883 1915 0.0000 lbox
+0.00 0.00 hsb 1884 1914 0.000000 ubox
+0.00 0.00 hsb 1884 1914 0.0000 lbox
+0.00 0.00 hsb 1886 1911 0.000000 ubox
+0.00 0.00 hsb 1886 1911 0.0000 lbox
+0.00 0.00 hsb 1887 1910 0.000000 ubox
+0.00 0.00 hsb 1887 1910 0.0000 lbox
+0.00 0.00 hsb 1888 1909 0.000000 ubox
+0.00 0.00 hsb 1888 1909 0.0000 lbox
+0.00 0.00 hsb 1889 1908 0.000000 ubox
+0.00 0.00 hsb 1889 1908 0.0000 lbox
+0.00 0.00 hsb 1890 1907 0.000000 ubox
+0.00 0.00 hsb 1890 1907 0.0000 lbox
+0.00 0.00 hsb 1892 1905 0.000000 ubox
+0.00 0.00 hsb 1892 1905 0.0000 lbox
+0.00 0.00 hsb 1893 1904 0.000000 ubox
+0.00 0.00 hsb 1893 1904 0.0000 lbox
+0.00 0.00 hsb 1895 1902 0.000000 ubox
+0.00 0.00 hsb 1895 1902 0.0000 lbox
+0.00 0.00 hsb 1896 1901 0.000000 ubox
+0.00 0.00 hsb 1896 1901 0.0000 lbox
+0.00 0.00 hsb 1963 1969 0.000000 ubox
+0.00 0.00 hsb 1963 1969 0.0000 lbox
+0.00 0.00 hsb 1964 1968 0.000000 ubox
+0.00 0.00 hsb 1964 1968 0.0000 lbox
+0.00 0.00 hsb 1971 1985 0.000000 ubox
+0.00 0.00 hsb 1971 1985 0.0000 lbox
+0.00 0.00 hsb 1972 1984 0.000000 ubox
+0.00 0.00 hsb 1972 1984 0.0000 lbox
+0.00 0.00 hsb 1973 1983 0.000000 ubox
+0.00 0.00 hsb 1973 1983 0.0000 lbox
+0.00 0.00 hsb 1974 1982 0.000000 ubox
+0.00 0.00 hsb 1974 1982 0.0000 lbox
+0.00 0.00 hsb 1975 1981 0.000000 ubox
+0.00 0.00 hsb 1975 1981 0.0000 lbox
+0.00 0.00 hsb 1976 1980 0.000000 ubox
+0.00 0.00 hsb 1976 1980 0.0000 lbox
+0.00 0.00 hsb 2017 2032 0.000000 ubox
+0.00 0.00 hsb 2017 2032 0.0000 lbox
+0.00 0.00 hsb 2018 2031 0.000000 ubox
+0.00 0.00 hsb 2018 2031 0.0000 lbox
+0.00 0.00 hsb 2019 2030 0.000000 ubox
+0.00 0.00 hsb 2019 2030 0.0000 lbox
+0.00 0.00 hsb 2020 2029 0.000000 ubox
+0.00 0.00 hsb 2020 2029 0.0000 lbox
+0.00 0.00 hsb 2022 2028 0.000000 ubox
+0.00 0.00 hsb 2022 2028 0.0000 lbox
+0.00 0.00 hsb 2023 2027 0.000000 ubox
+0.00 0.00 hsb 2023 2027 0.0000 lbox
+0.00 0.00 hsb 2070 2081 0.000000 ubox
+0.00 0.00 hsb 2070 2081 0.0000 lbox
+0.00 0.00 hsb 2071 2080 0.000000 ubox
+0.00 0.00 hsb 2071 2080 0.0000 lbox
+0.00 0.00 hsb 2072 2079 0.000000 ubox
+0.00 0.00 hsb 2072 2079 0.0000 lbox
+0.00 0.00 hsb 2084 2157 0.000000 ubox
+0.00 0.00 hsb 2084 2157 0.0000 lbox
+0.00 0.00 hsb 2085 2156 0.000000 ubox
+0.00 0.00 hsb 2085 2156 0.0000 lbox
+0.00 0.00 hsb 2086 2155 0.000000 ubox
+0.00 0.00 hsb 2086 2155 0.0000 lbox
+0.00 0.00 hsb 2087 2154 0.000000 ubox
+0.00 0.00 hsb 2087 2154 0.0000 lbox
+0.00 0.00 hsb 2088 2151 0.000000 ubox
+0.00 0.00 hsb 2088 2151 0.0000 lbox
+0.00 0.00 hsb 2089 2150 0.000000 ubox
+0.00 0.00 hsb 2089 2150 0.0000 lbox
+0.00 0.00 hsb 2091 2148 0.000000 ubox
+0.00 0.00 hsb 2091 2148 0.0000 lbox
+0.00 0.00 hsb 2092 2147 0.000000 ubox
+0.00 0.00 hsb 2092 2147 0.0000 lbox
+0.00 0.00 hsb 2093 2144 0.000000 ubox
+0.00 0.00 hsb 2093 2144 0.0000 lbox
+0.00 0.00 hsb 2094 2143 0.000000 ubox
+0.00 0.00 hsb 2094 2143 0.0000 lbox
+0.00 0.00 hsb 2095 2142 0.000000 ubox
+0.00 0.00 hsb 2095 2142 0.0000 lbox
+0.00 0.00 hsb 2096 2141 0.000000 ubox
+0.00 0.00 hsb 2096 2141 0.0000 lbox
+0.00 0.00 hsb 2097 2140 0.000000 ubox
+0.00 0.00 hsb 2097 2140 0.0000 lbox
+0.00 0.00 hsb 2099 2139 0.000000 ubox
+0.00 0.00 hsb 2099 2139 0.0000 lbox
+0.00 0.00 hsb 2100 2138 0.000000 ubox
+0.00 0.00 hsb 2100 2138 0.0000 lbox
+0.00 0.00 hsb 2101 2137 0.000000 ubox
+0.00 0.00 hsb 2101 2137 0.0000 lbox
+0.00 0.00 hsb 2102 2136 0.000000 ubox
+0.00 0.00 hsb 2102 2136 0.0000 lbox
+0.00 0.00 hsb 2104 2130 0.000000 ubox
+0.00 0.00 hsb 2104 2130 0.0000 lbox
+0.00 0.00 hsb 2105 2129 0.000000 ubox
+0.00 0.00 hsb 2105 2129 0.0000 lbox
+0.00 0.00 hsb 2106 2128 0.000000 ubox
+0.00 0.00 hsb 2106 2128 0.0000 lbox
+0.00 0.00 hsb 2107 2125 0.000000 ubox
+0.00 0.00 hsb 2107 2125 0.0000 lbox
+0.00 0.00 hsb 2108 2124 0.000000 ubox
+0.00 0.00 hsb 2108 2124 0.0000 lbox
+0.00 0.00 hsb 2109 2123 0.000000 ubox
+0.00 0.00 hsb 2109 2123 0.0000 lbox
+0.00 0.00 hsb 2110 2121 0.000000 ubox
+0.00 0.00 hsb 2110 2121 0.0000 lbox
+0.00 0.00 hsb 2111 2120 0.000000 ubox
+0.00 0.00 hsb 2111 2120 0.0000 lbox
+0.00 0.00 hsb 2112 2119 0.000000 ubox
+0.00 0.00 hsb 2112 2119 0.0000 lbox
+0.00 0.00 hsb 2165 2289 0.000000 ubox
+0.00 0.00 hsb 2165 2289 0.0000 lbox
+0.00 0.00 hsb 2166 2288 0.000000 ubox
+0.00 0.00 hsb 2166 2288 0.0000 lbox
+0.00 0.00 hsb 2167 2287 0.000000 ubox
+0.00 0.00 hsb 2167 2287 0.0000 lbox
+0.00 0.00 hsb 2168 2286 0.000000 ubox
+0.00 0.00 hsb 2168 2286 0.0000 lbox
+0.00 0.00 hsb 2169 2285 0.000000 ubox
+0.00 0.00 hsb 2169 2285 0.0000 lbox
+0.00 0.00 hsb 2170 2284 0.000000 ubox
+0.00 0.00 hsb 2170 2284 0.0000 lbox
+0.00 0.00 hsb 2171 2283 0.000000 ubox
+0.00 0.00 hsb 2171 2283 0.0000 lbox
+0.00 0.00 hsb 2174 2282 0.000000 ubox
+0.00 0.00 hsb 2174 2282 0.0000 lbox
+0.00 0.00 hsb 2175 2281 0.000000 ubox
+0.00 0.00 hsb 2175 2281 0.0000 lbox
+0.00 0.00 hsb 2178 2278 0.000000 ubox
+0.00 0.00 hsb 2178 2278 0.0000 lbox
+0.00 0.00 hsb 2179 2277 0.000000 ubox
+0.00 0.00 hsb 2179 2277 0.0000 lbox
+0.00 0.00 hsb 2181 2275 0.000000 ubox
+0.00 0.00 hsb 2181 2275 0.0000 lbox
+0.00 0.00 hsb 2182 2274 0.000000 ubox
+0.00 0.00 hsb 2182 2274 0.0000 lbox
+0.00 0.00 hsb 2183 2273 0.000000 ubox
+0.00 0.00 hsb 2183 2273 0.0000 lbox
+0.00 0.00 hsb 2184 2272 0.000000 ubox
+0.00 0.00 hsb 2184 2272 0.0000 lbox
+0.00 0.00 hsb 2185 2271 0.000000 ubox
+0.00 0.00 hsb 2185 2271 0.0000 lbox
+0.00 0.00 hsb 2201 2223 0.000000 ubox
+0.00 0.00 hsb 2201 2223 0.0000 lbox
+0.00 0.00 hsb 2202 2222 0.000000 ubox
+0.00 0.00 hsb 2202 2222 0.0000 lbox
+0.00 0.00 hsb 2203 2221 0.000000 ubox
+0.00 0.00 hsb 2203 2221 0.0000 lbox
+0.00 0.00 hsb 2204 2220 0.000000 ubox
+0.00 0.00 hsb 2204 2220 0.0000 lbox
+0.00 0.00 hsb 2205 2219 0.000000 ubox
+0.00 0.00 hsb 2205 2219 0.0000 lbox
+0.00 0.00 hsb 2206 2218 0.000000 ubox
+0.00 0.00 hsb 2206 2218 0.0000 lbox
+0.00 0.00 hsb 2207 2217 0.000000 ubox
+0.00 0.00 hsb 2207 2217 0.0000 lbox
+0.00 0.00 hsb 2209 2215 0.000000 ubox
+0.00 0.00 hsb 2209 2215 0.0000 lbox
+0.00 0.00 hsb 2210 2214 0.000000 ubox
+0.00 0.00 hsb 2210 2214 0.0000 lbox
+0.00 0.00 hsb 2232 2266 0.000000 ubox
+0.00 0.00 hsb 2232 2266 0.0000 lbox
+0.00 0.00 hsb 2233 2265 0.000000 ubox
+0.00 0.00 hsb 2233 2265 0.0000 lbox
+0.00 0.00 hsb 2234 2264 0.000000 ubox
+0.00 0.00 hsb 2234 2264 0.0000 lbox
+0.00 0.00 hsb 2235 2263 0.000000 ubox
+0.00 0.00 hsb 2235 2263 0.0000 lbox
+0.00 0.00 hsb 2236 2262 0.000000 ubox
+0.00 0.00 hsb 2236 2262 0.0000 lbox
+0.00 0.00 hsb 2237 2261 0.000000 ubox
+0.00 0.00 hsb 2237 2261 0.0000 lbox
+0.00 0.00 hsb 2238 2260 0.000000 ubox
+0.00 0.00 hsb 2238 2260 0.0000 lbox
+0.00 0.00 hsb 2239 2258 0.000000 ubox
+0.00 0.00 hsb 2239 2258 0.0000 lbox
+0.00 0.00 hsb 2240 2257 0.000000 ubox
+0.00 0.00 hsb 2240 2257 0.0000 lbox
+0.00 0.00 hsb 2241 2256 0.000000 ubox
+0.00 0.00 hsb 2241 2256 0.0000 lbox
+0.00 0.00 hsb 2245 2253 0.000000 ubox
+0.00 0.00 hsb 2245 2253 0.0000 lbox
+0.00 0.00 hsb 2246 2252 0.000000 ubox
+0.00 0.00 hsb 2246 2252 0.0000 lbox
+0.00 0.00 hsb 2290 2319 0.000000 ubox
+0.00 0.00 hsb 2290 2319 0.0000 lbox
+0.00 0.00 hsb 2291 2318 0.000000 ubox
+0.00 0.00 hsb 2291 2318 0.0000 lbox
+0.00 0.00 hsb 2292 2317 0.000000 ubox
+0.00 0.00 hsb 2292 2317 0.0000 lbox
+0.00 0.00 hsb 2293 2316 0.000000 ubox
+0.00 0.00 hsb 2293 2316 0.0000 lbox
+0.00 0.00 hsb 2294 2315 0.000000 ubox
+0.00 0.00 hsb 2294 2315 0.0000 lbox
+0.00 0.00 hsb 2295 2314 0.000000 ubox
+0.00 0.00 hsb 2295 2314 0.0000 lbox
+0.00 0.00 hsb 2296 2311 0.000000 ubox
+0.00 0.00 hsb 2296 2311 0.0000 lbox
+0.00 0.00 hsb 2297 2310 0.000000 ubox
+0.00 0.00 hsb 2297 2310 0.0000 lbox
+0.00 0.00 hsb 2298 2309 0.000000 ubox
+0.00 0.00 hsb 2298 2309 0.0000 lbox
+0.00 0.00 hsb 2299 2308 0.000000 ubox
+0.00 0.00 hsb 2299 2308 0.0000 lbox
+0.00 0.00 hsb 2300 2307 0.000000 ubox
+0.00 0.00 hsb 2300 2307 0.0000 lbox
+0.00 0.00 hsb 2301 2306 0.000000 ubox
+0.00 0.00 hsb 2301 2306 0.0000 lbox
+0.00 0.00 hsb 2334 2384 0.000000 ubox
+0.00 0.00 hsb 2334 2384 0.0000 lbox
+0.00 0.00 hsb 2335 2383 0.000000 ubox
+0.00 0.00 hsb 2335 2383 0.0000 lbox
+0.00 0.00 hsb 2336 2382 0.000000 ubox
+0.00 0.00 hsb 2336 2382 0.0000 lbox
+0.00 0.00 hsb 2337 2380 0.000000 ubox
+0.00 0.00 hsb 2337 2380 0.0000 lbox
+0.00 0.00 hsb 2338 2379 0.000000 ubox
+0.00 0.00 hsb 2338 2379 0.0000 lbox
+0.00 0.00 hsb 2339 2378 0.000000 ubox
+0.00 0.00 hsb 2339 2378 0.0000 lbox
+0.00 0.00 hsb 2340 2377 0.000000 ubox
+0.00 0.00 hsb 2340 2377 0.0000 lbox
+0.00 0.00 hsb 2342 2375 0.000000 ubox
+0.00 0.00 hsb 2342 2375 0.0000 lbox
+0.00 0.00 hsb 2343 2374 0.000000 ubox
+0.00 0.00 hsb 2343 2374 0.0000 lbox
+0.00 0.00 hsb 2344 2373 0.000000 ubox
+0.00 0.00 hsb 2344 2373 0.0000 lbox
+0.00 0.00 hsb 2345 2372 0.000000 ubox
+0.00 0.00 hsb 2345 2372 0.0000 lbox
+0.00 0.00 hsb 2350 2368 0.000000 ubox
+0.00 0.00 hsb 2350 2368 0.0000 lbox
+0.00 0.00 hsb 2351 2367 0.000000 ubox
+0.00 0.00 hsb 2351 2367 0.0000 lbox
+0.00 0.00 hsb 2352 2366 0.000000 ubox
+0.00 0.00 hsb 2352 2366 0.0000 lbox
+0.00 0.00 hsb 2353 2365 0.000000 ubox
+0.00 0.00 hsb 2353 2365 0.0000 lbox
+0.00 0.00 hsb 2355 2363 0.000000 ubox
+0.00 0.00 hsb 2355 2363 0.0000 lbox
+0.00 0.00 hsb 2356 2362 0.000000 ubox
+0.00 0.00 hsb 2356 2362 0.0000 lbox
+0.00 0.00 hsb 2357 2361 0.000000 ubox
+0.00 0.00 hsb 2357 2361 0.0000 lbox
+0.00 0.00 hsb 2394 2415 0.000000 ubox
+0.00 0.00 hsb 2394 2415 0.0000 lbox
+0.00 0.00 hsb 2395 2414 0.000000 ubox
+0.00 0.00 hsb 2395 2414 0.0000 lbox
+0.00 0.00 hsb 2396 2413 0.000000 ubox
+0.00 0.00 hsb 2396 2413 0.0000 lbox
+0.00 0.00 hsb 2397 2412 0.000000 ubox
+0.00 0.00 hsb 2397 2412 0.0000 lbox
+0.00 0.00 hsb 2399 2409 0.000000 ubox
+0.00 0.00 hsb 2399 2409 0.0000 lbox
+0.00 0.00 hsb 2400 2408 0.000000 ubox
+0.00 0.00 hsb 2400 2408 0.0000 lbox
+0.00 0.00 hsb 2401 2407 0.000000 ubox
+0.00 0.00 hsb 2401 2407 0.0000 lbox
+0.00 0.00 hsb 2402 2406 0.000000 ubox
+0.00 0.00 hsb 2402 2406 0.0000 lbox
+0.00 0.00 hsb 2424 2438 0.000000 ubox
+0.00 0.00 hsb 2424 2438 0.0000 lbox
+0.00 0.00 hsb 2425 2437 0.000000 ubox
+0.00 0.00 hsb 2425 2437 0.0000 lbox
+0.00 0.00 hsb 2426 2436 0.000000 ubox
+0.00 0.00 hsb 2426 2436 0.0000 lbox
+0.00 0.00 hsb 2443 2491 0.000000 ubox
+0.00 0.00 hsb 2443 2491 0.0000 lbox
+0.00 0.00 hsb 2444 2490 0.000000 ubox
+0.00 0.00 hsb 2444 2490 0.0000 lbox
+0.00 0.00 hsb 2450 2484 0.000000 ubox
+0.00 0.00 hsb 2450 2484 0.0000 lbox
+0.00 0.00 hsb 2451 2483 0.000000 ubox
+0.00 0.00 hsb 2451 2483 0.0000 lbox
+0.00 0.00 hsb 2455 2478 0.000000 ubox
+0.00 0.00 hsb 2455 2478 0.0000 lbox
+0.00 0.00 hsb 2456 2477 0.000000 ubox
+0.00 0.00 hsb 2456 2477 0.0000 lbox
+0.00 0.00 hsb 2457 2476 0.000000 ubox
+0.00 0.00 hsb 2457 2476 0.0000 lbox
+0.00 0.00 hsb 2458 2475 0.000000 ubox
+0.00 0.00 hsb 2458 2475 0.0000 lbox
+0.00 0.00 hsb 2459 2474 0.000000 ubox
+0.00 0.00 hsb 2459 2474 0.0000 lbox
+0.00 0.00 hsb 2460 2473 0.000000 ubox
+0.00 0.00 hsb 2460 2473 0.0000 lbox
+0.00 0.00 hsb 2461 2472 0.000000 ubox
+0.00 0.00 hsb 2461 2472 0.0000 lbox
+0.00 0.00 hsb 2462 2471 0.000000 ubox
+0.00 0.00 hsb 2462 2471 0.0000 lbox
+0.00 0.00 hsb 2492 2537 0.000000 ubox
+0.00 0.00 hsb 2492 2537 0.0000 lbox
+0.00 0.00 hsb 2493 2536 0.000000 ubox
+0.00 0.00 hsb 2493 2536 0.0000 lbox
+0.00 0.00 hsb 2494 2535 0.000000 ubox
+0.00 0.00 hsb 2494 2535 0.0000 lbox
+0.00 0.00 hsb 2495 2534 0.000000 ubox
+0.00 0.00 hsb 2495 2534 0.0000 lbox
+0.00 0.00 hsb 2498 2532 0.000000 ubox
+0.00 0.00 hsb 2498 2532 0.0000 lbox
+0.00 0.00 hsb 2499 2531 0.000000 ubox
+0.00 0.00 hsb 2499 2531 0.0000 lbox
+0.00 0.00 hsb 2500 2530 0.000000 ubox
+0.00 0.00 hsb 2500 2530 0.0000 lbox
+0.00 0.00 hsb 2501 2529 0.000000 ubox
+0.00 0.00 hsb 2501 2529 0.0000 lbox
+0.00 0.00 hsb 2502 2527 0.000000 ubox
+0.00 0.00 hsb 2502 2527 0.0000 lbox
+0.00 0.00 hsb 2503 2526 0.000000 ubox
+0.00 0.00 hsb 2503 2526 0.0000 lbox
+0.00 0.00 hsb 2504 2525 0.000000 ubox
+0.00 0.00 hsb 2504 2525 0.0000 lbox
+0.00 0.00 hsb 2505 2523 0.000000 ubox
+0.00 0.00 hsb 2505 2523 0.0000 lbox
+0.00 0.00 hsb 2506 2522 0.000000 ubox
+0.00 0.00 hsb 2506 2522 0.0000 lbox
+0.00 0.00 hsb 2507 2521 0.000000 ubox
+0.00 0.00 hsb 2507 2521 0.0000 lbox
+0.00 0.00 hsb 2540 2577 0.000000 ubox
+0.00 0.00 hsb 2540 2577 0.0000 lbox
+0.00 0.00 hsb 2541 2576 0.000000 ubox
+0.00 0.00 hsb 2541 2576 0.0000 lbox
+0.00 0.00 hsb 2542 2575 0.000000 ubox
+0.00 0.00 hsb 2542 2575 0.0000 lbox
+0.00 0.00 hsb 2543 2574 0.000000 ubox
+0.00 0.00 hsb 2543 2574 0.0000 lbox
+0.00 0.00 hsb 2546 2572 0.000000 ubox
+0.00 0.00 hsb 2546 2572 0.0000 lbox
+0.00 0.00 hsb 2547 2571 0.000000 ubox
+0.00 0.00 hsb 2547 2571 0.0000 lbox
+0.00 0.00 hsb 2548 2568 0.000000 ubox
+0.00 0.00 hsb 2548 2568 0.0000 lbox
+0.00 0.00 hsb 2549 2567 0.000000 ubox
+0.00 0.00 hsb 2549 2567 0.0000 lbox
+0.00 0.00 hsb 2550 2566 0.000000 ubox
+0.00 0.00 hsb 2550 2566 0.0000 lbox
+0.00 0.00 hsb 2551 2565 0.000000 ubox
+0.00 0.00 hsb 2551 2565 0.0000 lbox
+0.00 0.00 hsb 2552 2563 0.000000 ubox
+0.00 0.00 hsb 2552 2563 0.0000 lbox
+0.00 0.00 hsb 2553 2562 0.000000 ubox
+0.00 0.00 hsb 2553 2562 0.0000 lbox
+0.00 0.00 hsb 2589 2627 0.000000 ubox
+0.00 0.00 hsb 2589 2627 0.0000 lbox
+0.00 0.00 hsb 2590 2626 0.000000 ubox
+0.00 0.00 hsb 2590 2626 0.0000 lbox
+0.00 0.00 hsb 2591 2625 0.000000 ubox
+0.00 0.00 hsb 2591 2625 0.0000 lbox
+0.00 0.00 hsb 2593 2622 0.000000 ubox
+0.00 0.00 hsb 2593 2622 0.0000 lbox
+0.00 0.00 hsb 2594 2621 0.000000 ubox
+0.00 0.00 hsb 2594 2621 0.0000 lbox
+0.00 0.00 hsb 2595 2620 0.000000 ubox
+0.00 0.00 hsb 2595 2620 0.0000 lbox
+0.00 0.00 hsb 2596 2619 0.000000 ubox
+0.00 0.00 hsb 2596 2619 0.0000 lbox
+0.00 0.00 hsb 2597 2617 0.000000 ubox
+0.00 0.00 hsb 2597 2617 0.0000 lbox
+0.00 0.00 hsb 2598 2616 0.000000 ubox
+0.00 0.00 hsb 2598 2616 0.0000 lbox
+0.00 0.00 hsb 2599 2613 0.000000 ubox
+0.00 0.00 hsb 2599 2613 0.0000 lbox
+0.00 0.00 hsb 2600 2612 0.000000 ubox
+0.00 0.00 hsb 2600 2612 0.0000 lbox
+0.00 0.00 hsb 2603 2609 0.000000 ubox
+0.00 0.00 hsb 2603 2609 0.0000 lbox
+0.00 0.00 hsb 2604 2608 0.000000 ubox
+0.00 0.00 hsb 2604 2608 0.0000 lbox
+0.00 0.00 hsb 2628 2640 0.000000 ubox
+0.00 0.00 hsb 2628 2640 0.0000 lbox
+0.00 0.00 hsb 2629 2639 0.000000 ubox
+0.00 0.00 hsb 2629 2639 0.0000 lbox
+0.00 0.00 hsb 2630 2637 0.000000 ubox
+0.00 0.00 hsb 2630 2637 0.0000 lbox
+0.00 0.00 hsb 2631 2636 0.000000 ubox
+0.00 0.00 hsb 2631 2636 0.0000 lbox
+0.00 0.00 hsb 2642 2750 0.000000 ubox
+0.00 0.00 hsb 2642 2750 0.0000 lbox
+0.00 0.00 hsb 2643 2749 0.000000 ubox
+0.00 0.00 hsb 2643 2749 0.0000 lbox
+0.00 0.00 hsb 2645 2748 0.000000 ubox
+0.00 0.00 hsb 2645 2748 0.0000 lbox
+0.00 0.00 hsb 2646 2747 0.000000 ubox
+0.00 0.00 hsb 2646 2747 0.0000 lbox
+0.00 0.00 hsb 2647 2746 0.000000 ubox
+0.00 0.00 hsb 2647 2746 0.0000 lbox
+0.00 0.00 hsb 2648 2745 0.000000 ubox
+0.00 0.00 hsb 2648 2745 0.0000 lbox
+0.00 0.00 hsb 2649 2744 0.000000 ubox
+0.00 0.00 hsb 2649 2744 0.0000 lbox
+0.00 0.00 hsb 2652 2743 0.000000 ubox
+0.00 0.00 hsb 2652 2743 0.0000 lbox
+0.00 0.00 hsb 2653 2742 0.000000 ubox
+0.00 0.00 hsb 2653 2742 0.0000 lbox
+0.00 0.00 hsb 2654 2741 0.000000 ubox
+0.00 0.00 hsb 2654 2741 0.0000 lbox
+0.00 0.00 hsb 2655 2740 0.000000 ubox
+0.00 0.00 hsb 2655 2740 0.0000 lbox
+0.00 0.00 hsb 2656 2739 0.000000 ubox
+0.00 0.00 hsb 2656 2739 0.0000 lbox
+0.00 0.00 hsb 2657 2737 0.000000 ubox
+0.00 0.00 hsb 2657 2737 0.0000 lbox
+0.00 0.00 hsb 2658 2736 0.000000 ubox
+0.00 0.00 hsb 2658 2736 0.0000 lbox
+0.00 0.00 hsb 2659 2735 0.000000 ubox
+0.00 0.00 hsb 2659 2735 0.0000 lbox
+0.00 0.00 hsb 2661 2681 0.000000 ubox
+0.00 0.00 hsb 2661 2681 0.0000 lbox
+0.00 0.00 hsb 2662 2680 0.000000 ubox
+0.00 0.00 hsb 2662 2680 0.0000 lbox
+0.00 0.00 hsb 2663 2679 0.000000 ubox
+0.00 0.00 hsb 2663 2679 0.0000 lbox
+0.00 0.00 hsb 2664 2678 0.000000 ubox
+0.00 0.00 hsb 2664 2678 0.0000 lbox
+0.00 0.00 hsb 2665 2677 0.000000 ubox
+0.00 0.00 hsb 2665 2677 0.0000 lbox
+0.00 0.00 hsb 2667 2676 0.000000 ubox
+0.00 0.00 hsb 2667 2676 0.0000 lbox
+0.00 0.00 hsb 2668 2675 0.000000 ubox
+0.00 0.00 hsb 2668 2675 0.0000 lbox
+0.00 0.00 hsb 2669 2674 0.000000 ubox
+0.00 0.00 hsb 2669 2674 0.0000 lbox
+0.00 0.00 hsb 2683 2734 0.000000 ubox
+0.00 0.00 hsb 2683 2734 0.0000 lbox
+0.00 0.00 hsb 2684 2733 0.000000 ubox
+0.00 0.00 hsb 2684 2733 0.0000 lbox
+0.00 0.00 hsb 2685 2732 0.000000 ubox
+0.00 0.00 hsb 2685 2732 0.0000 lbox
+0.00 0.00 hsb 2686 2730 0.000000 ubox
+0.00 0.00 hsb 2686 2730 0.0000 lbox
+0.00 0.00 hsb 2687 2729 0.000000 ubox
+0.00 0.00 hsb 2687 2729 0.0000 lbox
+0.00 0.00 hsb 2689 2727 0.000000 ubox
+0.00 0.00 hsb 2689 2727 0.0000 lbox
+0.00 0.00 hsb 2690 2726 0.000000 ubox
+0.00 0.00 hsb 2690 2726 0.0000 lbox
+0.00 0.00 hsb 2692 2722 0.000000 ubox
+0.00 0.00 hsb 2692 2722 0.0000 lbox
+0.00 0.00 hsb 2693 2721 0.000000 ubox
+0.00 0.00 hsb 2693 2721 0.0000 lbox
+0.00 0.00 hsb 2694 2720 0.000000 ubox
+0.00 0.00 hsb 2694 2720 0.0000 lbox
+0.00 0.00 hsb 2695 2718 0.000000 ubox
+0.00 0.00 hsb 2695 2718 0.0000 lbox
+0.00 0.00 hsb 2696 2717 0.000000 ubox
+0.00 0.00 hsb 2696 2717 0.0000 lbox
+0.00 0.00 hsb 2697 2715 0.000000 ubox
+0.00 0.00 hsb 2697 2715 0.0000 lbox
+0.00 0.00 hsb 2698 2714 0.000000 ubox
+0.00 0.00 hsb 2698 2714 0.0000 lbox
+0.00 0.00 hsb 2699 2713 0.000000 ubox
+0.00 0.00 hsb 2699 2713 0.0000 lbox
+0.00 0.00 hsb 2700 2712 0.000000 ubox
+0.00 0.00 hsb 2700 2712 0.0000 lbox
+0.00 0.00 hsb 2705 2711 0.000000 ubox
+0.00 0.00 hsb 2705 2711 0.0000 lbox
+0.00 0.00 hsb 2706 2710 0.000000 ubox
+0.00 0.00 hsb 2706 2710 0.0000 lbox
+0.00 0.00 hsb 2775 2832 0.000000 ubox
+0.00 0.00 hsb 2775 2832 0.0000 lbox
+0.00 0.00 hsb 2776 2831 0.000000 ubox
+0.00 0.00 hsb 2776 2831 0.0000 lbox
+0.00 0.00 hsb 2777 2830 0.000000 ubox
+0.00 0.00 hsb 2777 2830 0.0000 lbox
+0.00 0.00 hsb 2778 2829 0.000000 ubox
+0.00 0.00 hsb 2778 2829 0.0000 lbox
+0.00 0.00 hsb 2779 2828 0.000000 ubox
+0.00 0.00 hsb 2779 2828 0.0000 lbox
+0.00 0.00 hsb 2780 2826 0.000000 ubox
+0.00 0.00 hsb 2780 2826 0.0000 lbox
+0.00 0.00 hsb 2781 2825 0.000000 ubox
+0.00 0.00 hsb 2781 2825 0.0000 lbox
+0.00 0.00 hsb 2782 2824 0.000000 ubox
+0.00 0.00 hsb 2782 2824 0.0000 lbox
+0.00 0.00 hsb 2783 2823 0.000000 ubox
+0.00 0.00 hsb 2783 2823 0.0000 lbox
+0.00 0.00 hsb 2786 2820 0.000000 ubox
+0.00 0.00 hsb 2786 2820 0.0000 lbox
+0.00 0.00 hsb 2787 2819 0.000000 ubox
+0.00 0.00 hsb 2787 2819 0.0000 lbox
+0.00 0.00 hsb 2788 2818 0.000000 ubox
+0.00 0.00 hsb 2788 2818 0.0000 lbox
+0.00 0.00 hsb 2790 2816 0.000000 ubox
+0.00 0.00 hsb 2790 2816 0.0000 lbox
+0.00 0.00 hsb 2791 2815 0.000000 ubox
+0.00 0.00 hsb 2791 2815 0.0000 lbox
+0.00 0.00 hsb 2792 2814 0.000000 ubox
+0.00 0.00 hsb 2792 2814 0.0000 lbox
+0.00 0.00 hsb 2793 2813 0.000000 ubox
+0.00 0.00 hsb 2793 2813 0.0000 lbox
+0.00 0.00 hsb 2794 2812 0.000000 ubox
+0.00 0.00 hsb 2794 2812 0.0000 lbox
+0.00 0.00 hsb 2795 2811 0.000000 ubox
+0.00 0.00 hsb 2795 2811 0.0000 lbox
+0.00 0.00 hsb 2838 2910 0.000000 ubox
+0.00 0.00 hsb 2838 2910 0.0000 lbox
+0.00 0.00 hsb 2839 2909 0.000000 ubox
+0.00 0.00 hsb 2839 2909 0.0000 lbox
+0.00 0.00 hsb 2840 2908 0.000000 ubox
+0.00 0.00 hsb 2840 2908 0.0000 lbox
+0.00 0.00 hsb 2842 2904 0.000000 ubox
+0.00 0.00 hsb 2842 2904 0.0000 lbox
+0.00 0.00 hsb 2843 2903 0.000000 ubox
+0.00 0.00 hsb 2843 2903 0.0000 lbox
+0.00 0.00 hsb 2844 2902 0.000000 ubox
+0.00 0.00 hsb 2844 2902 0.0000 lbox
+0.00 0.00 hsb 2846 2900 0.000000 ubox
+0.00 0.00 hsb 2846 2900 0.0000 lbox
+0.00 0.00 hsb 2847 2899 0.000000 ubox
+0.00 0.00 hsb 2847 2899 0.0000 lbox
+0.00 0.00 hsb 2849 2897 0.000000 ubox
+0.00 0.00 hsb 2849 2897 0.0000 lbox
+0.00 0.00 hsb 2850 2896 0.000000 ubox
+0.00 0.00 hsb 2850 2896 0.0000 lbox
+0.00 0.00 hsb 2851 2895 0.000000 ubox
+0.00 0.00 hsb 2851 2895 0.0000 lbox
+0.00 0.00 hsb 2860 2886 0.000000 ubox
+0.00 0.00 hsb 2860 2886 0.0000 lbox
+0.00 0.00 hsb 2861 2885 0.000000 ubox
+0.00 0.00 hsb 2861 2885 0.0000 lbox
+0.00 0.00 hsb 2863 2882 0.000000 ubox
+0.00 0.00 hsb 2863 2882 0.0000 lbox
+0.00 0.00 hsb 2864 2881 0.000000 ubox
+0.00 0.00 hsb 2864 2881 0.0000 lbox
+0.00 0.00 hsb 2865 2880 0.000000 ubox
+0.00 0.00 hsb 2865 2880 0.0000 lbox
+0.00 0.00 hsb 2867 2878 0.000000 ubox
+0.00 0.00 hsb 2867 2878 0.0000 lbox
+0.00 0.00 hsb 2868 2877 0.000000 ubox
+0.00 0.00 hsb 2868 2877 0.0000 lbox
+0.00 0.00 hsb 2869 2876 0.000000 ubox
+0.00 0.00 hsb 2869 2876 0.0000 lbox
+0.00 0.00 hsb 2870 2875 0.000000 ubox
+0.00 0.00 hsb 2870 2875 0.0000 lbox
+showpage
+end
+%%EOF
